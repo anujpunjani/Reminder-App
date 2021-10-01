@@ -21,6 +21,7 @@ class Event:
             timeout=Event.Timeout,
             app_icon=Event.appIcon
         )
+        return schedule.CancelJob
 
     def _specificTimeScheduler(self, time, task):
         schedule.every().day.at(f"{time}").do(task)
@@ -34,24 +35,23 @@ while remindMe:
         Time = input(
             "Time of your reminder(24 hour format, Eg. 13:10 (HH:MM(:SS)): ")
 
-        timeValidation = Time.split(':')
-        if timeValidation:
-            if len(timeValidation) > 3 or len(timeValidation) < 2:
-                remindMe = False
-                raise schedule.ScheduleValueError("Invalid time format")
+        Event(title, descripton, Time)
 
     except schedule.ScheduleValueError as err:
-        print("Error:", err)
+        print("\nError: Invalid time format (valid format is HH:MM(:SS)?)\n")
+        # print("Error: ", err)
         break
-
-    Event(title, descripton, Time)
 
     remindMeMore = input("\nWant to Schedule more(y, n): ")
     if remindMeMore != 'y':
         remindMe = False
         print("\nBye! I will look after your reminders.")
-        # print("Program will automatically close after all reminders are done.")
+        print("Program will automatically close after all reminders are done.")
 
 while True:
     schedule.run_pending()
+    if not schedule.jobs:
+        break
     time.sleep(1)
+
+print("\nI'm done, have a nice day ahead!\n")
