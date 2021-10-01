@@ -1,5 +1,5 @@
 # reminder-app
-Simple reminder app using python.
+Simple reminder app using python for Windows.
 
 ## Prerequisites
 
