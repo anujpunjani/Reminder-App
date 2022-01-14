@@ -1,17 +1,28 @@
-import time
+from time import sleep
 from plyer import notification
 import schedule
+from pyfiglet import figlet_format
+from termcolor import colored
+
+header = figlet_format("Python Reminds!")
+header = colored(header, color="green")
+# color not showing in some computers
+print(header)
 
 
 class Event:
     appIcon = "reminders.ico"
+    appName = "Python"
     Timeout = 5
     quitTime = ""
 
-    def __init__(self, title, message, time):
+    def __init__(self, title, message, time, remindEveryday):
         self.title = title
         self.message = message
-        self._specificTimeScheduler(time, self._notifier)
+        if remindEveryday in ("yes", 'y'):
+            self._specificTimeScheduler(time, self._everydayNotifier)
+        else:
+            self._specificTimeScheduler(time, self._notifier)
         Event.quitTime = time
 
     def _notifier(self):
@@ -19,39 +30,59 @@ class Event:
             title=self.title,
             message=self.message,
             timeout=Event.Timeout,
-            app_icon=Event.appIcon
+            app_icon=Event.appIcon,
+            app_name=Event.appName
         )
         return schedule.CancelJob
 
     def _specificTimeScheduler(self, time, task):
         schedule.every().day.at(f"{time}").do(task)
 
+    def _everyHourScheduler(self, task):
+        schedule.every().hour.do(task)
 
-remindMe = True
-while remindMe:
-    try:
-        title = input("\nTitle of your reminder: ")
-        descripton = input("Description of your reminder: ")
-        Time = input(
-            "Time of your reminder(24 hour format, Eg. 13:10 (HH:MM(:SS)): ")
+    def _everydayNotifier(self):
+        notification.notify(
+            title=self.title,
+            message=self.message,
+            timeout=Event.Timeout,
+            app_icon=Event.appIcon,
+            app_name=Event.appName
+        )
 
-        Event(title, descripton, Time)
 
-    except schedule.ScheduleValueError as err:
-        print("\nError: Invalid time format (valid format is HH:MM(:SS)?)\n")
-        # print("Error: ", err)
-        break
+def Main():
+    remindMe = True
+    while remindMe:
+        try:
+            title = input("\nTitle of your reminder: ")
+            descripton = input("Description of your reminder: ")
+            time = input(
+                "Time of your reminder(24 hour format, Eg. 13:10 (HH:MM(:SS)): ")
 
-    remindMeMore = input("\nWant to Schedule more(y, n): ")
-    if remindMeMore != 'y':
-        remindMe = False
-        print("\nBye! I will look after your reminders.")
-        print("Program will automatically close after all reminders are done.")
+            remindEveryday = input("Schdule everyday (y/n): ")
 
-while True:
-    schedule.run_pending()
-    if not schedule.jobs:
-        break
-    time.sleep(1)
+            Event(title, descripton, time, remindEveryday)
 
-print("\nI'm done, have a nice day ahead!\n")
+        except schedule.ScheduleValueError as err:
+            print("\nError: Invalid time format (valid format is HH:MM(:SS)?)\n")
+            # print("Error: ", err)
+            break
+
+        remindMeMore = input("\nWant to Schedule more(y, n): ")
+        if remindMeMore != 'y':
+            remindMe = False
+            print("\nBye! I will look after your reminders.")
+            print("Program will automatically close after all reminders are done.")
+
+    while True:
+        schedule.run_pending()
+        if not schedule.jobs:
+            break
+        sleep(1)
+
+    print("\nI'm done, have a nice day ahead!\n")
+
+
+if __name__ == '__main__':
+    Main()
