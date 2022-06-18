@@ -73,7 +73,8 @@ def Main():
         if remindMeMore != 'y':
             remindMe = False
             print("\nBye! I will look after your reminders.")
-            print("Program will automatically close after all reminders are done.")
+            print("Program will automatically", end=' ')
+            print("close after all reminders are done.")
 
     while True:
         schedule.run_pending()
